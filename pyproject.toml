@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "food_manager_api"
+version = "0.0.1"
+description = "REST API for food manager"
+authors = [{name = "Célien Donzé", email = "celien.donze@gmail.com"}]
+readme = "README.md"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["food_manager_api*"]
+
+
+[tool.ruff]
+select = ["F", "E", "D", "PD", "PL"]
+
+[tool.ruff.pydocstyle]
+convention = "google"
