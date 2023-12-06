@@ -11,6 +11,10 @@ readme = "README.md"
 dependencies = [
     "fastapi",
     "uvicorn",
+    "python-dotenv",
+    "SQLAlchemy",
+    "pandas",
+    "loguru",
 ]
 
 [tool.setuptools.packages.find]
@@ -20,6 +24,11 @@ include = ["food_manager_api*"]
 
 [tool.ruff]
 select = ["F", "E", "D", "PD", "PL"]
+ignore = ["D105", "E501"]
 
 [tool.ruff.pydocstyle]
 convention = "google"
+
+# ignore errors for notebooks
+[tool.ruff.extend-per-file-ignores]
+"**/*.ipynb" = ["D100", "E402"]
