@@ -3,11 +3,13 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "food_manager_api"
+name = "food_manager"
 version = "0.0.1"
 description = "REST API for food manager"
 authors = [{name = "Célien Donzé", email = "celien.donze@gmail.com"}]
 readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.11"
 dependencies = [
     "fastapi",
     "uvicorn",
@@ -17,9 +19,12 @@ dependencies = [
     "loguru",
 ]
 
+[project.optional-dependencies]
+test = ["pytest", "pytest-cov", "httpx"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["food_manager_api*"]
+include = ["food_manager*"]
 
 
 [tool.ruff]
@@ -32,3 +37,4 @@ convention = "google"
 # ignore errors for notebooks
 [tool.ruff.extend-per-file-ignores]
 "**/*.ipynb" = ["D100", "E402"]
+"tests/*" = ["PLR2004"]
