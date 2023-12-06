@@ -1,5 +1,6 @@
 """DataBase related functions."""
 import os
+import warnings
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
@@ -14,5 +15,6 @@ else:
     engine = create_engine(
         "sqlite:///:memory:", connect_args={"check_same_thread": False}
     )
+    warnings.warn("Using in-memory database. This is not suitable for production.")
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
