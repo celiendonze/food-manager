@@ -23,6 +23,7 @@
                 <table class="table table-responsive display-5">
                     <thead>
                         <tr>
+                            <!-- <th scope="col">ID</th> -->
                             <th scope="col">Food</th>
                             <th scope="col">Quantity</th>
                             <th scope="col">Date Added</th>
@@ -32,6 +33,7 @@
                     <tbody>
                         {% for food_item in all_food_items %}
                         <tr>
+                            <!-- <td>{{ food_item.id }}</td> -->
                             <td>{{ food_item.name }}</td>
                             <td>{{ food_item.quantity }}</td>
                             <td>{{ food_item.date_added }}</td>
@@ -54,7 +56,7 @@
     </div>
     <script>
         function delete_food_item(id) {
-            fetch("/food_item/" + id, {
+            fetch("/food_item/" + parseInt(id), {
                 method: "DELETE",
             }).then(function (response) {
                 if (response.ok) {
@@ -93,7 +95,7 @@
         buttons_delete = document.getElementsByClassName("btn_delete");
         for (let i = 0; i < buttons_delete.length; i++) {
             buttons_delete[i].addEventListener("click", function () {
-                let id = parseInt(buttons_delete[i].id.split("_")[3]);
+                let id = parseInt(buttons_delete[i].id.split("_")[2]);
                 delete_food_item(id);
             });
         }
@@ -102,7 +104,7 @@
         for (let i = 0; i < buttons_edit.length; i++) {
             buttons_edit[i].addEventListener("click", function () {
                 let id = parseInt(buttons_edit[i].id.split("_")[2]);
-                new_quantity = prompt("Enter new quantity");
+                new_quantity = parseInt(prompt("Enter new quantity"));
                 if (new_quantity != null) {
                     edit_food_item(id, new_quantity);
                 }
