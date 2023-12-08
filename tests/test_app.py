@@ -25,10 +25,8 @@ client = TestClient(app)
 
 def test_root():
     """Test the root endpoint."""
-    with TestClient(app) as client:
-        response: Response = client.get("/")
-        assert response.status_code == 200
-        assert response.json() == {"message": "Hello from the Food Manager API!"}
+    response: Response = client.get("/")
+    assert response.status_code == 200
 
 
 def test_get_food_items():
@@ -36,3 +34,11 @@ def test_get_food_items():
     response: Response = client.get("/food_items")
     assert response.status_code == 200
     assert response.json() == []
+
+
+def test_add_food_item():
+    """Test adding a food item."""
+    response: Response = client.post(
+        "/food_item", json={"name": "apple", "quantity": 5}
+    )
+    assert response.status_code == 200

@@ -1,17 +1,22 @@
 """FastAPI app root."""
 
-from typing import Literal
+
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from food_manager.api import Api
 from food_manager.db import SessionLocal
-from sqlalchemy.orm import Session
-
 from food_manager.schema.food_item import FoodItem
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 load_dotenv()
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="./app/static"), name="static")
+templates = Jinja2Templates(directory="./app/templates")
 
 
 def get_session():
@@ -23,10 +28,15 @@ def get_session():
         db.close()
 
 
-@app.get("/")
-async def root():
-    """Root endpoint."""
-    return {"message": "Hello from the Food Manager API!"}
+@app.get("/", response_class=HTMLResponse)
+async def root(request: Request, session: Session = Depends(get_session)):
+    """Root endpoint. display simple frontend."""
+    all_food_items = await get_food_items(session=session)
+    for food_item in all_food_items:
+        food_item["date_added"] = food_item["date_added"].split(" ")[0]
+    return templates.TemplateResponse(
+        "index.html", {"request": request, "all_food_items": all_food_items}
+    )
 
 
 @app.get("/food_items")
@@ -45,22 +55,38 @@ async def get_food_items_by_id(
     return api.get_food_item_by_id(id=id)
 
 
+class FoodItemRequest(BaseModel):
+    """A request for a food item."""
+
+    name: str
+    quantity: int
+
+
 @app.post("/food_item")
 async def add_food_item(
-    name: str,
-    quantity: int,
-    type: Literal["unit", "liquid", "other"] = "unit",
-    session: Session = Depends(get_session),
+    food_item: FoodItemRequest, session: Session = Depends(get_session)
 ):
     """Add a food item."""
     api = Api(session=session)
-    api.add_food_item(name=name, quantity=quantity)
-    return {"message": "Food item added successfully!"}
+    new_food_item = api.add_food_item(name=food_item.name, quantity=food_item.quantity)
+    return {"message": "Food item added successfully!", "food_item": new_food_item}
+
+
+@app.put("/food_item/{id}/{quantity}")
+async def update_food_item_quantity(
+    id: int,
+    quantity: int,
+    session: Session = Depends(get_session),
+):
+    """Update a food item."""
+    api = Api(session=session)
+    food_item = api.update_food_item_quantity(id=id, quantity=quantity)
+    return {"message": "Food item updated successfully!", "food_item": food_item}
 
 
 @app.delete("/food_item/{id}")
 async def remove_food_item_by_id(id: int, session: Session = Depends(get_session)):
     """Remove a food item by id."""
     api = Api(session=session)
-    api.remove_food_item_by_id(id=id)
-    return {"message": "Food item removed successfully!"}
+    food_item = api.remove_food_item_by_id(id=id)
+    return {"message": "Food item removed successfully!", "food_item": food_item}

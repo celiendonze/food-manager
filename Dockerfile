@@ -6,9 +6,9 @@ COPY ./pyproject.toml /code/pyproject.toml
 COPY ./src /code/src
 RUN pip install /code
 
-EXPOSE 5052
+EXPOSE 3000
 
 ENV DATABASE_URL="sqlite:///./app.db"
 
 COPY ./app /code/app
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5052"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3000"]

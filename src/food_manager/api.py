@@ -36,6 +36,30 @@ class Api:
         logger.info(f"Added {quantity} {name} to the database.")
         return food_item
 
+    def update_food_item_quantity(self, id: int, quantity: int) -> FoodItem:
+        """Update the quantity of a food item.
+
+        Args:
+            id (int): The id of the food item.
+            quantity (int): The new quantity of the food item.
+
+        Returns:
+            FoodItem: The updated food item.
+        """
+        with self.session.begin():
+            food_item = (
+                self.session.query(FoodItem).filter(FoodItem.id == id).one_or_none()
+            )
+            if food_item is None:
+                logger.info(f"Food item with id {id} does not exist.")
+            else:
+                food_item.quantity = quantity
+                self.session.commit()
+                logger.info(
+                    f"Updated quantity of food item with id {id} to {quantity}."
+                )
+        return food_item
+
     def remove_food_item_by_id(self, id: int) -> FoodItem:
         with self.session.begin():
             food_item = (

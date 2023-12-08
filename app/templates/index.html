@@ -1,0 +1,145 @@
+<html>
+
+<head>
+    <title>Food Manager</title>
+    <link id="favicon" rel="icon" type="image/x-icon" href="static/images/favicon.ico">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+
+<body data-bs-theme="dark">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col">
+                <h1 class="display-2 text-center">Food Manager</h1>
+                <!-- 2 input fields and a button to create a new food item -->
+                <div class="input-group mb-3">
+                    <input id="name_add" type="text" class="form-control" name="name" placeholder="Food" required>
+                    <input id="quantity_add" type="number" class="form-control" name="quantity" placeholder="Quantity"
+                        required>
+                    <button id="btn_add" class="btn btn-primary">Add</button>
+                </div>
+
+                <table class="table table-responsive display-5">
+                    <thead>
+                        <tr>
+                            <th scope="col">Food</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Date Added</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for food_item in all_food_items %}
+                        <tr>
+                            <td>{{ food_item.name }}</td>
+                            <td>{{ food_item.quantity }}</td>
+                            <td>{{ food_item.date_added }}</td>
+                            <td>
+                                <button id="btn_plus_one_{{ food_item.id }}_{{ food_item.quantity }}"
+                                    class="btn btn-success btn-lg m-2 btn_plus_one">+1</button>
+                                <button id="btn_minus_one_{{ food_item.id }}_{{ food_item.quantity }}"
+                                    class="btn btn-warning btn-lg m-2 btn_minus_one">-1</button>
+                                <button id="btn_edit_{{ food_item.id }}"
+                                    class="btn btn-primary btn-lg m-2 btn_edit">Edit</button>
+                                <button id="btn_delete_{{ food_item.id }}"
+                                    class="btn btn-danger btn-lg m-2 btn_delete">Delete</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        function delete_food_item(id) {
+            fetch("/food_item/" + id, {
+                method: "DELETE",
+            }).then(function (response) {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+        }
+
+        function edit_food_item(id, new_quantity) {
+            fetch("/food_item/" + id + "/" + new_quantity, {
+                method: "PUT",
+            }).then(function (response) {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+        }
+
+        function add_food_item(name, quantity) {
+            fetch("/food_item", {
+                method: "POST",
+                body: JSON.stringify({
+                    name: name,
+                    quantity: parseInt(quantity),
+                }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }).then(function (response) {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+        }
+
+        buttons_delete = document.getElementsByClassName("btn_delete");
+        for (let i = 0; i < buttons_delete.length; i++) {
+            buttons_delete[i].addEventListener("click", function () {
+                let id = parseInt(buttons_delete[i].id.split("_")[3]);
+                delete_food_item(id);
+            });
+        }
+
+        buttons_edit = document.getElementsByClassName("btn_edit");
+        for (let i = 0; i < buttons_edit.length; i++) {
+            buttons_edit[i].addEventListener("click", function () {
+                let id = parseInt(buttons_edit[i].id.split("_")[2]);
+                new_quantity = prompt("Enter new quantity");
+                if (new_quantity != null) {
+                    edit_food_item(id, new_quantity);
+                }
+            });
+        }
+
+        buttons_plus_one = document.getElementsByClassName("btn_plus_one");
+        for (let i = 0; i < buttons_plus_one.length; i++) {
+            buttons_plus_one[i].addEventListener("click", function () {
+                let id = parseInt(buttons_plus_one[i].id.split("_")[3]);
+                let new_quantity = parseInt(buttons_plus_one[i].id.split("_")[4]) + 1;
+                edit_food_item(id, new_quantity);
+            });
+        }
+
+        buttons_minus_one = document.getElementsByClassName("btn_minus_one");
+        for (let i = 0; i < buttons_minus_one.length; i++) {
+            buttons_minus_one[i].addEventListener("click", function () {
+                let id = parseInt(buttons_minus_one[i].id.split("_")[3]);
+                let new_quantity = parseInt(buttons_minus_one[i].id.split("_")[4]) - 1;
+                if (new_quantity <= 0) {
+                    delete_food_item(id);
+                } else {
+                    edit_food_item(id, new_quantity);
+                }
+            });
+        }
+
+        document.getElementById("btn_add").addEventListener("click", function () {
+            let name = document.getElementById("name_add").value;
+            let quantity = document.getElementById("quantity_add").value;
+            add_food_item(name, quantity);
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
