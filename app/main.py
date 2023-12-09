@@ -1,15 +1,14 @@
 """FastAPI app root."""
-
-
+from typing import Annotated
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, Path, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from food_manager.api import Api
 from food_manager.db import SessionLocal
 from food_manager.schema.food_item import FoodItem
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 load_dotenv()
@@ -58,8 +57,8 @@ async def get_food_items_by_id(
 class FoodItemRequest(BaseModel):
     """A request for a food item."""
 
-    name: str
-    quantity: int
+    name: str = Field(..., min_length=1)
+    quantity: int = Field(..., gt=0)
 
 
 @app.post("/food_item")
@@ -75,7 +74,7 @@ async def add_food_item(
 @app.put("/food_item/{id}/{quantity}")
 async def update_food_item_quantity(
     id: int,
-    quantity: int,
+    quantity: Annotated[int, Path(title="The new quantity.", gt=0)],
     session: Session = Depends(get_session),
 ):
     """Update a food item."""
