@@ -1,14 +1,13 @@
 """The API for interacting with the database."""
 
+import hashlib
+
 import pandas as pd
 from dotenv import load_dotenv
 from loguru import logger
-from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from food_manager.db.models import Base, FoodItem, User
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 load_dotenv(override=True)
 
@@ -49,7 +48,7 @@ class Api:
             if self.session.query(User).filter(User.username == username).one_or_none():
                 logger.debug(f"User with username {username} already exists.")
                 raise ValueError(f"User with username {username} already exists.")
-            hased_password = pwd_context.hash(password)
+            hased_password = hashlib.sha512(password.encode()).hexdigest()
             user = User(username=username, hashed_password=hased_password)
             self.session.add(user)
             self.session.commit()
@@ -80,9 +79,11 @@ class Api:
             user = (
                 self.session.query(User).filter(User.username == username).one_or_none()
             )
-        if user is not None:
-            logger.info(f"Retrieved user with username {username} from the database.")
-        return user
+            if user is not None:
+                logger.info(
+                    f"Retrieved user with username {username} from the database."
+                )
+            return user
 
     def add_food_item(self, name: str, quantity: int) -> FoodItem:
         """Add a food item to the database.
@@ -95,12 +96,12 @@ class Api:
             FoodItem: The added food item.
         """
         with self.session.begin():
-            now = str(pd.Timestamp.utcnow())
+            now = pd.Timestamp.utcnow().to_pydatetime()
             user = (
                 self.session.query(User).filter(User.id == self.current_user_id).one()
             )
             food_item = FoodItem(
-                name=name, quantity=quantity, date_added=now, user=user
+                name=name, quantity=quantity, date_added=now, user_id=user.id
             )
             self.session.add(food_item)
             self.session.commit()
@@ -173,10 +174,10 @@ class Api:
         Returns:
             pd.DataFrame: All food items in the database.
         """
-        with self.session.begin():
-            food_items_df = pd.read_sql_table(
-                table_name="food_item", con=self.session.connection()
-            )
+        food_items_df = pd.read_sql_query(
+            f"SELECT * FROM food_item WHERE user_id = {self.current_user_id}",
+            con=self.session.connection(),
+        )
         logger.info("Retrieved all food items from the database.")
         return food_items_df
 
