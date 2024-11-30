@@ -46,10 +46,6 @@ function add_food_item(name, quantity) {
     }).then(function (response) {
         if (response.ok) {
             window.location.reload();
-        } else {
-            var myToastEl = document.getElementById('notif')
-            var myToast = bootstrap.Toast.getOrCreateInstance(myToastEl)
-            myToast.show()
         }
     });
 }
