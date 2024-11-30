@@ -1,7 +1,7 @@
 """FastAPI app root."""
 from typing import Annotated
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, Path, Query, Request
+from fastapi import Depends, FastAPI, Path, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates

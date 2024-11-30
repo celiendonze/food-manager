@@ -1,0 +1,11 @@
+version: "3.8"
+services:
+  food-manager:
+    build: .
+    container_name: food-manager
+    ports:
+      - 3000:3000
+    environment:
+      - DATABASE_URL=sqlite:///./db/app.db
+    volumes:
+      - ./data/db:/code/db
