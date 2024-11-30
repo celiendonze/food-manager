@@ -19,6 +19,7 @@ dependencies = [
     "jinja2",
     "pandas",
     "loguru",
+    "psycopg2-binary",
 ]
 
 [project.optional-dependencies]
