@@ -1,0 +1,21 @@
+services:
+  food-manager:
+    build: .
+    container_name: food-manager
+    ports:
+      - 3000:3000
+    environment:
+      # - DATABASE_URL=sqlite:///./db/app.db
+      - DATABASE_URL=postgresql://postgres:er534dfg3422@database:5432/food_manager
+      - SECRET_KEY=secret
+    volumes:
+      - ./data/db:/code/db
+  database:
+    image: postgres:13
+    container_name: food-manager-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=er534dfg3422
+      - POSTGRES_DB=food_manager
+    # volumes:
+    #   - ./data/postgres_db:/var/lib/postgresql/data

@@ -1,10 +1,10 @@
-FROM python:3.11-slim-bullseye
+FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
 
 WORKDIR /code
 
 COPY ./pyproject.toml /code/pyproject.toml
 COPY ./src /code/src
-RUN pip install /code
+RUN uv pip install . --system
 
 EXPOSE 3000
 

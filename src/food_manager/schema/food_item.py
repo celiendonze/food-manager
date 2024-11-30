@@ -1,4 +1,5 @@
 """Pydantic models for food items."""
+
 from pydantic import BaseModel
 
 
@@ -9,6 +10,7 @@ class FoodItem(BaseModel):
     name: str
     quantity: int
     date_added: str
+    user_id: int
 
     class Config:
         """Pydantic configuration."""

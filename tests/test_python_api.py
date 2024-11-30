@@ -1,14 +1,27 @@
 """Test the Python API."""
-from food_manager.api import Api
+
+from pytest import fixture
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from pytest import fixture
+
+from food_manager.api import Api
+from food_manager.db.models import Base, User
 
 
 @fixture
 def api():
     """Create an API fixture."""
-    return Api(session=sessionmaker(bind=create_engine("sqlite:///:memory:"))())
+    engine = create_engine("sqlite:///:memory:")
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    Base.metadata.create_all(bind=engine)
+    with SessionLocal() as session:
+        user = User(username="test", hashed_password="test")
+        session.add(user)
+        session.commit()
+    session = SessionLocal()
+    api = Api(session=session)
+    api.set_current_user(username="test")
+    return api
 
 
 def test_get_all_food_items(api: Api):

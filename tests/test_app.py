@@ -1,13 +1,21 @@
 """Test the FastAPI app."""
+
 from fastapi.testclient import TestClient
 from httpx import Response
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.main import app, get_session
+from food_manager.db.models import Base, User
 
 engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base.metadata.create_all(bind=engine)
+with SessionLocal() as session:
+    user = User(username="test", hashed_password="test")
+    session.add(user)
+    session.commit()
 
 
 def override_get_session():
